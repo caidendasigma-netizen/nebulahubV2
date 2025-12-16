@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nebula Hub V2</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0e14; --panel:#0f1422; --card:#121826; --accent:#7c7cff; --accent2:#00ffd1; --text:#e6e8ee; --muted:#9aa3b2;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:radial-gradient(1200px 600px at 10% -10%, #1b1f3a, transparent),var(--bg);color:var(--text);font-family:Inter,system-ui}
+html{scroll-behavior:smooth}
+.app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+.sidebar{position:sticky;top:0;height:100vh;background:linear-gradient(180deg,rgba(11,14,20,.95),rgba(11,14,20,.85));border-right:1px solid rgba(255,255,255,.06);padding:18px}
+.brand{font-weight:800;letter-spacing:.4px;font-size:20px;margin-bottom:22px}
+.brand span{color:var(--accent2)}
+.navbtn{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:var(--text);cursor:pointer;margin-bottom:10px;transition:transform .15s ease,background .15s ease,border-color .15s ease}
+.navbtn.active{background:linear-gradient(180deg,rgba(124,124,255,.25),rgba(124,124,255,.08));border-color:rgba(124,124,255,.6)}
+.navbtn:hover{transform:translateY(-1px)}
+.main{padding:28px}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.header h1{margin:0;font-size:28px}
+.header .pill{padding:6px 10px;border-radius:999px;background:rgba(0,255,209,.12);color:var(--accent2);font-weight:700;font-size:12px}
+.screen{display:none;animation:fade .35s ease}
+.screen.active{display:block}
+@keyframes fade{from{opacity:.0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:18px;position:relative;overflow:hidden;transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease;cursor:pointer}
+.card::after{content:"";position:absolute;inset:-1px;background:radial-gradient(300px 120px at var(--mx,50%) var(--my,0%),rgba(124,124,255,.25),transparent 60%);opacity:0;transition:opacity .25s ease}
+.card:hover{transform:translateY(-6px);box-shadow:0 30px 80px rgba(0,0,0,.45);border-color:rgba(124,124,255,.6)}
+.card:hover::after{opacity:.8}
+.card h3{margin:6px 0 8px}
+.card p{color:var(--muted);margin:0 0 10px}
+.search-wrap{background:var(--card);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:18px}
+.search-row{display:flex;gap:10px}
+.search-row input{flex:1;padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:#0e1320;color:var(--text)}
+.btn{padding:14px 18px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg,rgba(124,124,255,.25),rgba(124,124,255,.1));color:var(--text);cursor:pointer;font-weight:700}
+.results{margin-top:14px;max-height:300px;overflow-y:auto;}
+.result{padding:10px 0;border-bottom:1px dashed rgba(255,255,255,.12)}
+.iframe-container{height:500px;border:1px solid rgba(255,255,255,.12);border-radius:14px;overflow:hidden;margin-top:10px}
+.iframe-container iframe{width:100%;height:100%;border:0}
+@media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{position:fixed;left:-100%;transition:left .25s ease}.sidebar.open{left:0}.main{padding-top:64px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">Nebula Hub <span>V2</span></div>
+    <button class="navbtn active" onclick="openScreen('home',this)">Home</button>
+    <button class="navbtn" onclick="openScreen('search',this)">Nebula Search</button>
+    <button class="navbtn" onclick="openScreen('games',this)">Games</button>
+    <button class="navbtn" onclick="openScreen('chatgpt',this)">AI Chat</button>
+    <button class="navbtn" onclick="openScreen('utilities',this)">Utilities</button>
+    <button class="navbtn" onclick="openScreen('dev',this)">Developer</button>
+    <button class="navbtn" onclick="openScreen('settings',this)">Settings</button>
+  </aside>
+  <main class="main">
+    <div class="header">
+      <h1 id="title">Home</h1>
+      <span class="pill">App Mode</span>
+    </div>
+
+    <!-- HOME -->
+    <section id="home" class="screen active">
+      <div class="grid">
+        <div class="card"><h3>Welcome to Nebula Hub V2</h3><p>Your all-in-one web app hub.</p></div>
+      </div>
+    </section>
+
+    <!-- SEARCH -->
+    <section id="search" class="screen">
+      <div class="search-wrap">
+        <h2>Nebula Search</h2>
+        <div class="search-row">
+          <input id="q" placeholder="Search DuckDuckGo inside NebulaHub"/>
+          <button class="btn" onclick="ddg()">Search</button>
+        </div>
+        <div id="results" class="results"></div>
+      </div>
+    </section>
+
+    <!-- GAMES -->
+    <section id="games" class="screen">
+      <h2>Games Hub</h2>
+      <div class="grid">
+        <div class="card" onclick="loadGame('snake')"><h3>Snake</h3></div>
+        <div class="card" onclick="loadGame('tictactoe')"><h3>Tic Tac Toe</h3></div>
+        <div class="card" onclick="loadGame('flappybird')"><h3>Flappy Bird</h3></div>
+      </div>
+      <div class="iframe-container" id="gameFrame"></div>
+    </section>
+
+    <!-- AI CHAT -->
+    <section id="chatgpt" class="screen">
+      <div class="search-wrap">
+        <h2>Nebula AI Chat</h2>
+        <div class="iframe-container">
+          <iframe srcdoc="<p>AI Hub Ready. Type message below.</p>" id="aiFrame"></iframe>
+        </div>
+        <input id="aiPrompt" placeholder="Type here..." style="width:70%;padding:8px;border-radius:8px;margin-top:10px"/>
+        <button class="btn" onclick="sendAI()">Send</button>
+        <div id="aiChat" class="results"></div>
+      </div>
+    </section>
+
+    <!-- UTILITIES -->
+    <section id="utilities" class="screen">
+      <h2>Utilities Hub</h2>
+      <div class="grid">
+        <div class="card" onclick="loadUtility('calculator')"><h3>Calculator</h3></div>
+        <div class="card" onclick="loadUtility('notes')"><h3>Notes</h3></div>
+        <div class="card" onclick="loadUtility('timer')"><h3>Timer</h3></div>
+      </div>
+      <div class="iframe-container" id="utilityFrame"></div>
+    </section>
+
+    <!-- DEVELOPER -->
+    <section id="dev" class="screen">
+      <div class="search-wrap">
+        <h2>Developer Console</h2>
+        <input id="devKey" placeholder="Enter key"/>
+        <button class="btn" onclick="unlockDev()">Unlock</button>
+        <div id="devPanel" style="display:none">
+          <p>Developer tools unlocked.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="settings" class="screen">
+      <h2>Settings</h2>
+      <div class="setting"><span>Dark Mode Toggle</span><div class="toggle on" onclick="toggle(this)"></div></div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+// Open screen
+function openScreen(id,btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.getElementById('title').textContent = btn ? btn.textContent : id;
+}
+
+// DuckDuckGo Search
+function ddg(){
+  const q=document.getElementById('q').value;
+  const out=document.getElementById('results');
+  out.innerHTML='Searching…';
+  fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&no_redirect=1&no_html=1`)
+    .then(r=>r.json())
+    .then(d=>{out.innerHTML=''; if(d.AbstractText) out.innerHTML+=`<div class="result">${d.AbstractText}</div>`;})
+    .catch(()=>out.innerHTML='Error loading results');
+}
+
+// Card hover glow
+for(const c of document.querySelectorAll('.card')){
+  c.addEventListener('mousemove', e=>{
+    const r=c.getBoundingClientRect();
+    c.style.setProperty('--mx', ((e.clientX-r.left)/r.width)*100+'%');
+    c.style.setProperty('--my', ((e.clientY-r.top)/r.height)*100+'%');
+  });
+}
+
+// Load games
+function loadGame(game){
+  const frame=document.getElementById('gameFrame');
+  if(game==='snake') frame.srcdoc=`<html><body style="margin:0;background:#000"><p style="color:white;">Snake game demo</p></body></html>`;
+  if(game==='tictactoe') frame.srcdoc=`<html><body style="margin:0;background:#000"><p style="color:white;">Tic Tac Toe demo</p></body></html>`;
+  if(game==='flappybird') frame.srcdoc=`<html><body style="margin:0;background:#000"><p style="color:white;">Flappy Bird demo</p></body></html>`;
+}
+
+// AI Chat
+function sendAI(){
+  const prompt=document.getElementById('aiPrompt').value;
+  const chat=document.getElementById('aiChat');
+  chat.innerHTML+=`<div class="result"><b>You:</b> ${prompt}</div>`;
+  setTimeout(()=>chat.innerHTML+=`<div class="result"><b>Nebula AI:</b> Demo reply to "${prompt}".</div>`,500);
+}
+
+// Utilities
+function loadUtility(tool){
+  const frame=document.getElementById('utilityFrame');
+  frame.srcdoc=`<html><body style="background:#121826;color:#e6e8ee"><p>${tool} utility demo</p></body></html>`;
+}
+
+// Developer
+function unlockDev(){
+  const input=document.getElementById('devKey').value;
+  if(input==='NEBULA-DEV-ALPHA'){document.getElementById('devPanel').style.display='block';}
+}
+
+// Toggle
+function toggle(t){t.classList.toggle('on');}
+</script>
+</body>
+</html>
